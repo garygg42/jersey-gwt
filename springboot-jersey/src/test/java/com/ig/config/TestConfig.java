@@ -1,8 +1,7 @@
 package com.ig.config;
 
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
+//@Configuration
 // @ComponentScan(basePackageClasses = {RestResource.class,
 // MessageService.class})
 public class TestConfig {
