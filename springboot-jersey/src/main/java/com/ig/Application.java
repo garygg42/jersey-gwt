@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.web.ErrorMvcAutoConfiguration;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 
@@ -13,7 +14,7 @@ import com.ig.config.JerseyConfig;
 import com.ig.domain.Customer;
 import com.ig.repository.CustomerRepository;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = { ErrorMvcAutoConfiguration.class })
 public class Application implements CommandLineRunner {
 
 	@Autowired
@@ -36,6 +37,7 @@ public class Application implements CommandLineRunner {
 	@Override
 	public void run(String... strings) throws Exception {
 		// populate h2 database
+		repository.save(new Customer("Jack", "Bauer"));
 		repository.save(new Customer("Jack", "Bauer"));
 		repository.save(new Customer("Chloe", "O'Brian"));
 		repository.save(new Customer("Kim", "Bauer"));

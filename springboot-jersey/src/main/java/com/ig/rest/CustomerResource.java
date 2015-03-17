@@ -1,23 +1,23 @@
 package com.ig.rest;
 
-import java.util.List;
+import java.util.Collections;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ig.domain.Customer;
-import com.ig.exception.ExceptionInfo;
 import com.ig.repository.CustomerRepository;
 
-@Path("/customers")
+@Path("customers")
 @Component
 public class CustomerResource {
 
@@ -26,35 +26,35 @@ public class CustomerResource {
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON })
-	public Iterable<Customer> getCustomers() {
+	public Iterable<Customer> findCustomers(
+			@QueryParam("firstName") String firstName,
+			@QueryParam("lastName") String lastName) {
 
-		Iterable<Customer> customers = repository.findAll();
+		Iterable<Customer> customers = Collections.emptyList();
+		if (StringUtils.isEmpty(firstName) && StringUtils.isEmpty(lastName))
+			customers = repository.findAll();
+		else if (!StringUtils.isEmpty(firstName)
+				&& !StringUtils.isEmpty(lastName))
+			customers = repository.findByFirstNameAndLastNameAllIgnoreCase(
+					firstName, lastName);
+		else if (!StringUtils.isEmpty(firstName))
+			customers = repository.findByFirstNameIgnoreCase(firstName);
+		else if (!StringUtils.isEmpty(lastName))
+			customers = repository.findByLastNameIgnoreCase(lastName);
 		return customers;
 	}
 
 	@GET
 	@Path("{id}")
 	@Produces({ MediaType.APPLICATION_JSON })
-	public Response findById(@PathParam("id") Long id) {
+	public Customer findById(@PathParam("id") Long id) {
 
 		Customer customer = repository.findOne(id);
 		if (customer != null) {
-			return Response.status(Status.OK).entity(customer).build();
-		} else {
-			return Response
-					.status(Status.NOT_FOUND)
-					.entity(new ExceptionInfo(Status.NOT_FOUND.getStatusCode(),
-							"Not found.", "Customer with id " + id
-									+ " does not exist.")).build();
+			throw new NotFoundException(String.format(
+					"Customer with id: %d does not exist.", id));
 		}
+		return customer;
 	}
 
-	@GET
-	@Path("findByLastName/{lastName}")
-	@Produces({ MediaType.APPLICATION_JSON })
-	public List<Customer> findByLastName(@PathParam("lastName") String lastName) {
-
-		List<Customer> customers = repository.findByLastName(lastName);
-		return customers;
-	}
 }
