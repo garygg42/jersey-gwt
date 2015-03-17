@@ -3,7 +3,6 @@ package com.ig.rest;
 import java.util.Collections;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -15,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ig.domain.Customer;
+import com.ig.exception.CustomerNotFoundException;
 import com.ig.repository.CustomerRepository;
 
 @Path("customers")
@@ -50,9 +50,8 @@ public class CustomerResource {
 	public Customer findById(@PathParam("id") Long id) {
 
 		Customer customer = repository.findOne(id);
-		if (customer != null) {
-			throw new NotFoundException(String.format(
-					"Customer with id: %d does not exist.", id));
+		if (customer == null) {
+			throw new CustomerNotFoundException(id);
 		}
 		return customer;
 	}
